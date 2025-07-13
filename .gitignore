@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+mlx-env/
+.env
+
+# MLX/ML specific
+adapters/
+*.safetensors
+*.ckpt
+*.pth
+checkpoints/
+logs/
+*.log
+
+# Data
+data/*.jsonl
+!data/example_*.jsonl
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# MPI
+*.o
+*.out

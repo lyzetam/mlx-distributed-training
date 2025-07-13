@@ -1,0 +1,79 @@
+# Home Assistant Training Configuration for Gemma 2B
+
+# Model configuration
+model:
+  name: "mlx-community/gemma-2-2b-it-4bit"  # Using 2B model for better memory efficiency
+  # Alternative options:
+  # name: "mlx-community/gemma-2-9b-it-4bit"  # 9B model (needs ~20GB memory)
+  # name: "google/gemma-2-2b-it"  # Full precision 2B model
+
+# Training type
+training:
+  type: "lora"  # LoRA for efficient fine-tuning
+  
+  # LoRA parameters optimized for 2B model
+  lora:
+    rank: 8       # Lower rank for 2B model
+    alpha: 16     # Alpha = 2 * rank is a good default
+    dropout: 0.1  # Small dropout for regularization
+    scale: 10.0
+    num_layers: 8  # Fewer layers for 2B model
+
+# Dataset configuration
+dataset:
+  path: "data/homeassistant_training.jsonl"
+  output_dir: "data"
+  validation_split: 0.1  # 10% for validation
+  max_seq_length: 128   # Very short sequences for testing
+  format_type: "chat"
+  shuffle: true
+  seed: 42
+
+# Training hyperparameters
+hyperparameters:
+  batch_size: 3         # Must be divisible by number of nodes (3)
+  learning_rate: 1e-4   # Higher learning rate for 2B model
+  num_iterations: 10    # Very short run to test distributed setup
+  val_batches: 2        # Minimal validation
+  steps_per_report: 5   # Report every 5 steps
+  steps_per_eval: 10    # Evaluate at the end only
+  gradient_accumulation_steps: 1  # Minimize GPU memory usage
+  warmup_steps: 0       # No warmup for quick test
+  weight_decay: 0.01
+  
+  # Learning rate schedule
+  lr_schedule: "cosine"  # Cosine annealing
+
+# Checkpointing
+checkpointing:
+  save_every: 50  # Save more frequently for test run
+  output_dir: "adapters/homeassistant_gemma9b"
+  resume_from: null
+
+# Distributed training
+distributed:
+  enabled: true  # Set to true if using multiple nodes
+  backend: "mpi"
+  
+# Logging
+logging:
+  level: "INFO"
+  log_file: "logs/homeassistant_training.log"
+  
+# Evaluation
+evaluation:
+  test_prompts:
+    - "turn on the bedroom lights"
+    - "can you please dim the living room to 50 percent"
+    - "what's the temperature in the kitchen"
+    - "lock the front door"
+    - "activate movie mode"
+    - "turn off all lights please"
+  max_tokens: 150  # Longer for structured responses
+
+# Memory optimization
+optimization:
+  gradient_checkpointing: true   # Enable to reduce memory usage
+  mixed_precision: false  # Keep false for stability
+  memory_efficient_attention: true  # Use memory efficient attention
+  offload_optimizer_states: true    # Offload optimizer states to CPU

@@ -1,0 +1,72 @@
+# MLX Distributed Training Configuration
+
+# Model configuration
+model:
+  name: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+  # path: "/path/to/local/model"  # Optional: use local model
+
+# Training type
+training:
+  type: "lora"  # Options: "lora" or "full"
+  
+  # LoRA specific parameters
+  lora:
+    rank: 8
+    alpha: 16
+    dropout: 0.0
+    scale: 10.0
+    num_layers: 8  # Number of layers to apply LoRA to
+
+# Dataset configuration
+dataset:
+  path: "data/sample_dataset.jsonl"  # Path to your dataset
+  output_dir: "data"  # Where to save processed train/valid splits
+  validation_split: 0.2
+  max_seq_length: 2048
+  format_type: "chat"  # Options: "chat" or "raw"
+  shuffle: true
+  seed: 42
+
+# Training hyperparameters
+hyperparameters:
+  batch_size: 2
+  learning_rate: 1e-5
+  num_iterations: 100  # Number of training iterations
+  val_batches: 25  # Number of validation batches
+  steps_per_report: 10  # How often to report training loss
+  steps_per_eval: 50  # How often to run validation
+  gradient_accumulation_steps: 1
+  warmup_steps: 100
+  weight_decay: 0.01
+  
+  # Learning rate schedule (optional)
+  # lr_schedule: "cosine"  # Options: "cosine", "linear", null
+
+# Checkpointing
+checkpointing:
+  save_every: 100  # Save checkpoint every N iterations
+  output_dir: "adapters"  # Where to save adapters/checkpoints
+  resume_from: null  # Path to resume from checkpoint
+
+# Distributed training
+distributed:
+  enabled: true  # Set to true for multi-node training
+  backend: "mpi"  # Currently only MPI is supported
+  
+# Logging
+logging:
+  level: "INFO"
+  log_file: "training.log"
+  
+# Evaluation
+evaluation:
+  test_prompts:
+    - "What is machine learning?"
+    - "Explain quantum computing in simple terms."
+    - "How does photosynthesis work?"
+  max_tokens: 100
+
+# Memory optimization
+optimization:
+  gradient_checkpointing: false  # Trade compute for memory
+  mixed_precision: false  # Use lower precision (experimental)
